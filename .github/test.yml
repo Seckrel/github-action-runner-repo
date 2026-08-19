@@ -1,0 +1,54 @@
+name: Test Repo B Access
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: Seckrel
+
+      - name: Checkout Repo github app repo
+        uses: actions/checkout@v4
+        with:
+          repository: Seckrel/github-app-repo
+          token: ${{ steps.app-token.outputs.token }}
+          path: github-app-repo
+
+      - name: Make change
+        working-directory: github-app-repo
+        run: |
+          BRANCH=test-gh-app-${{ github.run_id }}
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          git checkout -b $BRANCH
+
+          echo "Test $(date)" > gha-test.txt
+
+          git add gha-test.txt
+          git commit -m "Test GitHub App"
+
+          git push origin $BRANCH
+
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+      - name: Create PR
+        working-directory: repo-b
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head $BRANCH \
+            --title "Test GitHub App" \
+            --body "Created from Repo A workflow"
