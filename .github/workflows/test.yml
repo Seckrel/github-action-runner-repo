@@ -43,7 +43,7 @@ jobs:
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
 
       - name: Create PR
-        working-directory: repo-b
+        working-directory: github-app-repo
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
