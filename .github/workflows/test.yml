@@ -26,7 +26,7 @@ jobs:
       - name: Make change
         working-directory: github-app-repo
         run: |
-          BRANCH=test-gh-app-${{ github.run_id }}
+          BRANCH=test-gh-app-$(date +%s)
 
           git config user.name github-actions
           git config user.email github-actions@github.com
